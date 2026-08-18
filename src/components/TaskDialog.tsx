@@ -304,6 +304,14 @@ export function TaskDialog({ open, onOpenChange, task, defaultColumnId }: Props)
   // expired token. Database writes must use the live session so they are sent
   // as `authenticated`, not `anon` (which RLS correctly rejects).
   const getAuthenticatedUser = async () => {
+    const url = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+    const publishableKey =
+      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+    // The standalone demo intentionally has no Supabase credentials. Its
+    // browser-local adapter provides the demo identity and persists changes.
+    if (!url || !publishableKey) {
+      return { user: { id: "taskflow-demo-user" } as any, client: supabase as any };
+    }
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -319,14 +327,6 @@ export function TaskDialog({ open, onOpenChange, task, defaultColumnId }: Props)
       toast.error("Não foi possível validar sua sessão. Entre novamente para criar uma tarefa.");
       return null;
     }
-    const url = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-    const publishableKey =
-      import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
-    if (!url || !publishableKey) {
-      toast.error("A conexão com o Supabase não está configurada.");
-      return null;
-    }
-
     // Use the verified access token explicitly for task creation. This avoids a
     // stale internal auth state causing PostgREST to receive the request as anon.
     const authenticatedClient = createClient<Database>(url, publishableKey, {
