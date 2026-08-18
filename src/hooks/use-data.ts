@@ -174,19 +174,10 @@ export function useTasks() {
     queryFn: async () => {
       // Read through the current verified session. Without an explicit bearer
       // token, a stale browser auth state can make RLS return an empty task list.
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      const url = import.meta.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-      const publishableKey =
-        import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
-      const taskClient =
-        session && url && publishableKey
-          ? createClient<Database>(url, publishableKey, {
-              auth: { persistSession: false, autoRefreshToken: false },
-              global: { headers: { Authorization: `Bearer ${session.access_token}` } },
-            })
-          : supabase;
+      // The demo uses the browser-local adapter for both writes and reads.
+      // Do not create a second credentialed client here, otherwise newly
+      // created local tasks disappear on the query refresh.
+      const taskClient = supabase;
       // Soft-delete strategy: deleted tasks stay in the database, but normal screens hide them.
       const { data, error } = await taskClient
         .from("tasks")
