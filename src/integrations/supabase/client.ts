@@ -30,7 +30,11 @@ class LocalQuery {
   select() { this.selected = true; return this; }
   eq(k: string, v: any) { this.filters.push(r => r[k] === v); return this; }
   in(k: string, values: any[]) { this.filters.push(r => values.includes(r[k])); return this; }
-  is(k: string, v: any) { this.filters.push(r => r[k] === v); return this; }
+  is(k: string, v: any) {
+    // Supabase treats an omitted property and null alike for `is(..., null)`.
+    this.filters.push(r => v === null ? r[k] == null : r[k] === v);
+    return this;
+  }
   not(k: string, _op: any, v: any) { this.filters.push(r => r[k] !== v); return this; }
   order(k: string, opts: any = {}) { const old = this.filters; this.filters = [...old, (r: any) => true]; (this as any)._order = [k, opts]; return this; }
   limit() { return this; } range() { return this; } match(values: any) { Object.entries(values).forEach(([k,v]) => this.eq(k,v)); return this; } or() { return this; } filter() { return this; } contains() { return this; } over() { return this; }
