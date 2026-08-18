@@ -59,6 +59,6 @@ function localClient() {
     functions: { invoke: async () => ({ data: null, error: null }) },
   } as any;
 }
-const url = import.meta.env.VITE_SUPABASE_URL;
-const token = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-export const supabase: any = url && token ? createClient<Database>(url, token) : localClient();
+// This repository is a standalone demonstration. Never use environment
+// credentials here: all data must remain inside the visitor's browser.
+export const supabase: any = localClient();

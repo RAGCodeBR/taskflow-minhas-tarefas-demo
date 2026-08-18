@@ -309,7 +309,8 @@ export function TaskDialog({ open, onOpenChange, task, defaultColumnId }: Props)
       import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
     // The standalone demo intentionally has no Supabase credentials. Its
     // browser-local adapter provides the demo identity and persists changes.
-    if (!url || !publishableKey) {
+    const demoMode = true;
+    if (demoMode || !url || !publishableKey) {
       return { user: { id: "taskflow-demo-user" } as any, client: supabase as any };
     }
     const {
